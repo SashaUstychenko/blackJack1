@@ -17,6 +17,16 @@ qt_add_qml_module(appblackJack
     VERSION 1.0
     QML_FILES
         Main.qml
+        SOURCES
+        SOURCES card.h card.cpp
+        SOURCES player.h player.cpp
+        SOURCES deck.h deck.cpp
+        SOURCES skin.h skin.cpp
+        SOURCES sound.h sound.cpp
+        SOURCES hand.h hand.cpp
+        RESOURCES resSound.qrc
+        RESOURCES resSkinBack.qrc
+        RESOURCES resSkinFront.qrc
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
