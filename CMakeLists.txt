@@ -27,6 +27,9 @@ qt_add_qml_module(appblackJack
         RESOURCES resSound.qrc
         RESOURCES resSkinBack.qrc
         RESOURCES resSkinFront.qrc
+        SOURCES dealer.h dealer.cpp
+        SOURCES controlerblackjack.h controlerblackjack.cpp
+        SOURCES gambler.h gambler.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

@@ -1,3 +1,8 @@
 #include "card.h"
 
-Card::Card() {}
+
+Card::Card(Suit suit, Rank rank)
+    :suit(suit),rank(rank)
+{
+
+}
