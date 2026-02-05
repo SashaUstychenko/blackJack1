@@ -6,7 +6,10 @@
 class Dealer:public Gambler
 {
     public:
-    bool shouldDraw()const;
+    bool shouldDraw()const
+    {
+
+    }
 
 };
 

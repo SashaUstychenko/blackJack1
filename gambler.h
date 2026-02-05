@@ -8,7 +8,7 @@ class Gambler
 
     public:
         virtual ~Gambler()= default;
-        const Hand& hetHand()const;
+        const Hand& getHand()const;
         Hand& getHand();
         void clearHand();
 };
