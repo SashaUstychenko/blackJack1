@@ -17,6 +17,7 @@ class Hand
         int cardCount()const;
 
         const std::vector<Card>&getGards()const;
+
 };
 
 #endif // HAND_H

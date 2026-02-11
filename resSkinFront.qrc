@@ -55,5 +55,6 @@
         <file>image/queen_of_diamonds.png</file>
         <file>image/queen_of_hearts.png</file>
         <file>image/queen_of_spades.png</file>
+        <file>image/table.jpg</file>
     </qresource>
 </RCC>

@@ -23,6 +23,7 @@ private:
     bool firstPlayerAction = true;
     bool blackjackPays3_2 = true;
     bool perfectPairsEnabled = true;
+    bool betPlaced = false;
 
     int perfectPairPayout = 10; // 10:1
 
@@ -36,6 +37,9 @@ private:
 
 public:
     explicit ControlerBlackJack(QObject *parent = nullptr);
+
+    Q_PROPERTY(int playerCardCount READ playerCardCount NOTIFY playerHandChanged);
+    Q_PROPERTY(int dealerCardCount READ dealerCardCount NOTIFY dealerHandChanged);
 
     // actions from UI
     Q_INVOKABLE void startGame();
@@ -66,6 +70,12 @@ public:
 
     Q_INVOKABLE bool canPlayerHit();
     Q_INVOKABLE bool isRoundFinished() const;
+
+    Q_INVOKABLE bool canStartRound() const;
+signals:
+    void playerHandChanged();
+    void dealerHandChanged();
+
 };
 
 #endif // CONTROLERBLACKJACK_H

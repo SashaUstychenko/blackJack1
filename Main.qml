@@ -2,8 +2,18 @@ import QtQuick
 import QtQuick.Controls
 
 ApplicationWindow {
-    width: 640
-    height: 480
+    width: 900
+    height: 600
     visible: true
-    title: qsTr("Hello World")
+    title: qsTr("Blackjack Game")
+
+
+    StackView
+    {
+        id: stack
+        anchors.fill: parent
+        initialItem: GameView{}
+    }
+
+
 }

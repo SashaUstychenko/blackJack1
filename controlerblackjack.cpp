@@ -1,4 +1,5 @@
 #include "controlerblackjack.h"
+#include <QDebug>
 
 
 
@@ -8,24 +9,34 @@ ControlerBlackJack::ControlerBlackJack(QObject *parent)
 
 void ControlerBlackJack::startGame()
 {
-    if(deck.size() == 0)
-    {
-        deck.reset();
-        deck.shuffle();
-    }
+    qDebug() << "startGame called:" ;
+
+
+
+    qDebug() << "startGame called:b";
     player.clearHand();
     dealer.clearHand();
 
+    deck.reset();
+    deck.shuffle();
+
     firstPlayerAction = true;
     roundFinished = false;
-    if(player.getMoney()<1 && player.getMoney()>=player.getBet())
-    {
-        while(2)
-        {
-            player.getHand().addCard(deck.draw());
-            dealer.getHand().addCard(deck.draw());
-        }
-    }
+
+
+
+    player.getHand().addCard(deck.draw());
+    dealer.getHand().addCard(deck.draw());
+    player.getHand().addCard(deck.draw());
+
+    dealer.getHand().addCard(deck.draw());
+
+    emit playerHandChanged();
+    emit dealerHandChanged();
+
+    qDebug() << "startGame called: end" ;
+
+
 }
 
 void ControlerBlackJack::playerHit()
@@ -68,13 +79,22 @@ void ControlerBlackJack::newRound()
 
     player.getHand().addCard(deck.draw());
     dealer.getHand().addCard(deck.draw());
-
+    if (perfectPairsEnabled && player.getPerfectPairBet() > 0)
+    {
+        if (isPerfectPair())
+        {
+            int win = player.getPerfectPairBet() * perfectPairPayout;
+            player.updateMoney(player.getPerfectPairBet() + win);
+        }
+    }
     checkRoundEnd();
 }
 
 
 QString ControlerBlackJack::playerCardImage(int index) const
 {
+    qDebug() << "playerCardImage called index:" << index;
+
     const auto& cards = player.getHand().getGards();
     if (index < 0 || index >= static_cast<int>(cards.size()))
         return "";
@@ -84,6 +104,8 @@ QString ControlerBlackJack::playerCardImage(int index) const
 
 QString ControlerBlackJack::dealerCardImage(int index) const
 {
+    qDebug() << "dealer CardImage called index:" << index;
+
     const auto& cards = dealer.getHand().getGards();
     if (index < 0 || index >= static_cast<int>(cards.size()))
         return "";
@@ -116,8 +138,15 @@ int ControlerBlackJack::playerMoney() const
     return player.getMoney();
 }
 
+int ControlerBlackJack::playerBet() const
+{
+    return player.getBet();
+}
+
 void ControlerBlackJack::placeBet(int amount)
 {
+    qDebug() << "placeBet called:" << amount;
+
     player.placeBet(amount);
     startGame();
 }
@@ -178,10 +207,17 @@ bool ControlerBlackJack::isRoundFinished() const
 {
     return roundFinished;
 }
+
+bool ControlerBlackJack::canStartRound() const
+{
+    return betPlaced && !roundFinished;
+}
 QString ControlerBlackJack::cardImagePath(const Card &card) const
 {
-    return QString("qrc:image/%1_of_%2.png").arg(rankToString(card.getRank()))
+     qDebug() << "cardImagePath called for card:" ;
+    return QString("qrc:/image/%1_of_%2.png").arg(rankToString(card.getRank()))
                                             .arg(suitToString(card.getSuit()));
+
 }
 
 QString ControlerBlackJack::rankToString(Rank rank) const
@@ -256,6 +292,7 @@ void ControlerBlackJack::checkRoundEnd()
     player.placeBet(0);
 
     roundFinished = true;
+    player.clearBets();
 }
 
 bool ControlerBlackJack::isPerfectPair() const

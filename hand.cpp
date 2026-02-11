@@ -53,7 +53,7 @@ int Hand::cardCount() const
     return cards.size();
 }
 
-const std::vector<Card> Hand::getGards() const
+const std::vector<Card>& Hand::getGards() const
 {
     return cards;
 }

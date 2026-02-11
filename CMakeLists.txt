@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(blackJack VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Quick)
 
@@ -10,6 +11,7 @@ qt_standard_project_setup(REQUIRES 6.5)
 
 qt_add_executable(appblackJack
     main.cpp
+    resSkinFront.qrc
 )
 
 qt_add_qml_module(appblackJack
@@ -30,6 +32,10 @@ qt_add_qml_module(appblackJack
         SOURCES dealer.h dealer.cpp
         SOURCES controlerblackjack.h controlerblackjack.cpp
         SOURCES gambler.h gambler.cpp
+        QML_FILES GameView.qml
+        RESOURCES
+        RESOURCES resIcon.qrc
+        QML_FILES HandView.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

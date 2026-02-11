@@ -9,6 +9,7 @@ class Player : public Gambler
         int bet = 0;
         int perfectPairBet = 0;
     public:
+        Player();
         void placeBet(int amount);
         void placePerfectPairBet(int amount);
         int getPerfectPairBet() const;

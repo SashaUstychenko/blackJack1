@@ -2,6 +2,12 @@
 
 
 
+Player::Player()
+    : money(1000),bet(0)
+{
+
+}
+
 void Player::placeBet(int amount)
 {
     if (money >= amount)
