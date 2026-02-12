@@ -1,1 +1,7 @@
-<RCC/>
+<RCC>
+    <qresource prefix="/">
+        <file>sound/button1.mp3</file>
+        <file>sound/fon.mp3</file>
+        <file>sound/swish.m4a</file>
+    </qresource>
+</RCC>

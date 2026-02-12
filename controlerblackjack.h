@@ -66,11 +66,13 @@ public:
 
     Q_PROPERTY(RoundResult roundResult READ getRoundResult NOTIFY roundResultChanged)
     Q_PROPERTY(bool perfectPairEnabled READ canPlacePerfectPairBet NOTIFY perfectPairChanged)
-
+    Q_PROPERTY(bool dealerHiddenCard READ isDealerHidden NOTIFY dealerHiddenCardChanged)
     Q_PROPERTY(PerfectPairResult perfectPairResult READ getPerfectPairResult NOTIFY perfectPairResultChanged)
     Q_PROPERTY(bool perfectPairWin READ isPerfectPairWin NOTIFY perfectPairResultChanged)
     Q_PROPERTY(bool perfectPairEnabled READ canPlacePerfectPairBet NOTIFY perfectPairChanged)
 
+    Q_PROPERTY(int dealerVisibleScore READ dealerVisibleScore NOTIFY dealerHandChanged)
+    Q_PROPERTY(int playerScore READ playerScore NOTIFY playerHandChanged)
 
 
     Q_PROPERTY(int playerCardCount READ playerCardCount NOTIFY playerHandChanged)
@@ -96,6 +98,8 @@ public:
 
     Q_INVOKABLE int playerScore() const;
     Q_INVOKABLE int dealerScore() const;
+    Q_INVOKABLE int dealerVisibleScore() const;
+
 
     Q_INVOKABLE int playerMoney() const;
     Q_INVOKABLE int playerBet() const;
@@ -114,6 +118,8 @@ public:
     Q_INVOKABLE bool isRoundFinished() const;
 
     Q_INVOKABLE bool canStartRound() const;
+    Q_INVOKABLE bool isDealerHidden()const;
+    Q_INVOKABLE void revealDealerCard();
 
 
 
@@ -126,6 +132,7 @@ signals:
     void roundResultChanged();
     void perfectPairResultChanged();
     void perfectPairChanged();
+    void dealerHiddenCardChanged();
 
 
 

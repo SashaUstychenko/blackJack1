@@ -1,11 +1,13 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include "controlerblackjack.h"
+#include "sound.h"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
     qmlRegisterType<ControlerBlackJack>("blackJack", 1, 0, "ControlerBlackJack");
+    qmlRegisterType<Sound>("Sound", 1, 0, "ControlerSound");
 
     QQmlApplicationEngine engine;
 

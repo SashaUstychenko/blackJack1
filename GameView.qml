@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import blackJack 1.0
+import Sound
 
 Rectangle
 {
@@ -11,6 +12,13 @@ Rectangle
     {
         id: controller
     }
+    ControlerSound
+    {
+        id: controllerSound
+    }
+    Component.onCompleted: {
+           controllerSound.backgroundSoundF()
+       }
 
     Image
     {
@@ -18,6 +26,7 @@ Rectangle
         width: parent.width
         height: parent.height
         source: "qrc:/image/table.jpg"
+
         Rectangle
         {
             width: parent.width
@@ -28,7 +37,6 @@ Rectangle
                          GradientStop { position: 0.0; color: "#777c85" }
                          GradientStop { position: 1.0; color: "#4a4d52" }
                       }
-
             Row
             {
                 spacing: 15
@@ -37,27 +45,26 @@ Rectangle
                 anchors.leftMargin: 40
 
 
-            Text
-            {
-                id: cashT
-                text: "Cach $"+controller.playerMoney
-                font.bold: true;
-                font.pixelSize: 30
-                color: "#f5f7f5"
-            }
+                Text
+                {
+                    id: cashT
+                    text: "Cach $"+controller.playerMoney
+                    font.bold: true;
+                    font.pixelSize: 30
+                    color: "#f5f7f5"
+                }
 
-            Text
-            {
-                id: betT
-                text: "Bet $"+controller.playerBet
-                font.bold: true;
-                font.pixelSize: 30
-                color: "#f5f7f5"
-            }
+                Text
+                {
+                    id: betT
+                    text: "Bet $"+controller.playerBet
+                    font.bold: true;
+                    font.pixelSize: 30
+                    color: "#f5f7f5"
+                }
             }
         }
             //menu bet
-
             Popup
             {
                 id: betPopup
@@ -74,32 +81,25 @@ Rectangle
                         opacity: 0.45
                         radius: 12
                     }
-
-
                 Rectangle {
                     anchors.fill: parent
                     color: "#208a84"
                     radius: 12
-
                     Column {
                         anchors.centerIn: parent
                         spacing: 15
-
                         Text {
                             text: "Choose your bet"
                             color: "#145c58"
                             font.bold: true
                             font.pixelSize: 20
-
                             anchors.horizontalCenter: parent.horizontalCenter
                         }
-
                         Row {
                             anchors.horizontalCenter: parent.horizontalCenter
                             spacing: 15
                             Repeater {
                                 model: [25, 50, 100, 200]
-
                                 Rectangle
                                 {
                                     id: btnBet
@@ -118,43 +118,39 @@ Rectangle
                                         anchors.fill: parent
                                         onClicked:
                                         {
+                                            controllerSound.clickButton()
                                             controller.placeBet(modelData)
-
                                             betPopup.close()
-
                                         }
                                         cursorShape: Qt.PointingHandCursor
                                     }
                                 }
-
                             }
                             Rectangle {
                                 id:btnPerfect
                                 width: 120
                                 height: 44
                                 radius: 22
-
                                 color: controller.canPlacePerfectPairBet() ? "#8e44ad" : "#555"
                                 opacity: controller.canPlacePerfectPairBet() ? 1 : 0.4
-
                                 Text {
                                     anchors.centerIn: parent
                                     text: "PERFECT PAIR"
                                     color: "white"
                                     font.bold: true
                                 }
-
                                 MouseArea {
                                     anchors.fill: parent
                                     enabled: controller.canPlacePerfectPairBet()
                                     cursorShape: Qt.PointingHandCursor
-                                    onClicked: perfectPairPopup.open()
+                                    onClicked:{ controllerSound.clickButton()
+                                                perfectPairPopup.open()
+                                    }
                                 }
                             }
                         }
                     }
                 }
-
                 Component.onCompleted: open()
             }
             //menu result
@@ -164,24 +160,19 @@ Rectangle
                 focus: true
                 dim: true
                 closePolicy: Popup.NoAutoClose
-
                 width: 360
                 height: 220
-
                 x: parent.width / 2 - width / 2
                 y: parent.height / 2 - height / 2
-
                 background: Rectangle {
                     color: "#000000"
                     opacity: 0.5
                     radius: 12
                 }
-
                 Rectangle {
                     anchors.fill: parent
                     radius: 16
                     color: "#208a84"
-
                     Column {
                         anchors.centerIn: parent
                         spacing: 24
@@ -203,25 +194,24 @@ Rectangle
                             color: "white"
                             horizontalAlignment: Text.AlignHCenter
                         }
-
                         Rectangle {
                             width: 180
                             height: 56
                             radius: 28
                             color: "#49b8b8"
-
-                            Text {
+                            Text
+                            {
                                 text: "NEXT ROUND"
                                 anchors.centerIn: parent
                                 font.bold: true
                                 color: "white"
                             }
-
                             MouseArea
                             {
                                 anchors.fill: parent
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: {
+                                    controllerSound.clickButton()
                                     resultPopup.close()
                                     controller.newRound()
                                     betPopup.open()
@@ -239,8 +229,6 @@ Rectangle
                     }
                 }
             }
-
-
         Rectangle
         {
           width: 70
@@ -266,10 +254,19 @@ Rectangle
                 anchors.fill: parent
                 source: "qrc:/icon/menu.png"
                 fillMode: Image.PreserveAspectCrop
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                     onClicked: {
+                         controllerSound.clickButton()
+                         leftDrawer.open()
+                     }
+                    }
                 }
             }
         }
-
+        //perfect Pair
         Popup {
             id: perfectPairPopup
             modal: true
@@ -323,6 +320,7 @@ Rectangle
                                     cursorShape: Qt.PointingHandCursor
                                     enabled: controller.perfectPairEnabled
                                     onClicked: {
+                                        controllerSound.clickButton()
                                         controller.placePerfectPairBet(modelData)
                                         perfectPairPopup.close()
                                     }
@@ -335,31 +333,59 @@ Rectangle
             }
         }
 
+        Row
+        {
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 100
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 10
+        Text {
+              text: "Player: " + controller.playerScore
+              font.pixelSize: 20
+              color: "white"
+              font.bold: true
+
+              }
         HandView
         {
             id: playerHand
 
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 100
-            anchors.horizontalCenter: parent.horizontalCenter
-
             cardCount: controller.playerCardCount
-            cardSource: function(index) { return controller.playerCardImage(index) }
+            cardSource: function(index) {
+                controllerSound.playCardSound()
+                return controller.playerCardImage(index) }
             deckAnchor: deckAnchor
+        }
 
         }
-        HandView
+        Row
         {
-            id: dealerHand
-
             anchors.top: parent.top
             anchors.topMargin: 40
             anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 10
 
+         Text
+         {
+              text: "Dealer: " + controller.dealerVisibleScore
+              font.pixelSize: 20
+              color: "white"
+              font.bold: true
+          }
+        HandView {
+            id: dealerHand
             cardCount: controller.dealerCardCount
-            cardSource: function(index) { return controller.dealerCardImage(index) }
+            cardSource: function(index) {
+                controllerSound.playCardSound()
+                if (index === 1 && controller.isDealerHidden()) {
+                    return "qrc:/image/back_black.png"
+                }
+                return controller.dealerCardImage(index)
+            }
             deckAnchor: deckAnchor
         }
+        }
+
         Rectangle
         {
             id: deckAnchor
@@ -380,7 +406,6 @@ Rectangle
                 source: "qrc:/image/back_black.png"
             }
         }
-
         Rectangle
         {
             id: btnHit
@@ -410,9 +435,9 @@ Rectangle
                 onClicked:
                 {
                     controller.playerHit()
+                    controllerSound.clickButton()
                 }
             }
-
         }
         Rectangle
         {
@@ -436,20 +461,19 @@ Rectangle
                 color: "#fafcfc"
                 anchors.centerIn: parent
             }
-
             MouseArea
             {
                 anchors.fill: parent
                 onClicked:
                 {
                     controller.playerStand()
+                    controllerSound.clickButton()
                 }
             }
-
         }
         Rectangle
         {
-            id: doubleDownButton
+            id: btndoubleDown
             width: 80
             height: 80
             radius: width/2
@@ -468,21 +492,79 @@ Rectangle
                 color: "#fafcfc"
                 anchors.centerIn: parent
             }
-
             MouseArea
             {
                 anchors.fill: parent
-                enabled: controller.canDoubleDown()   // автоматично включається/виключається
+                enabled: controller.canDoubleDown()
                 onClicked: {
-                    controller.doubleDown()           // подвоюємо ставку і одразу додаємо карту
+                    controller.doubleDown()
+                    controllerSound.clickButton()
                 }
             }
-
         }
-
-
-
-
     }
+    Drawer {
+          id: leftDrawer
+          width: 220
+          height: parent.height
+          edge: Qt.LeftEdge
+          modal: true
+          interactive: true
+
+          Rectangle {
+              anchors.fill: parent
+              color: "#878282"
+
+
+              Column {
+                          spacing: 10
+                          padding: 20
+
+                          Label {
+                              text: "Menu"
+                              font.bold: true
+                              font.pixelSize: 24
+                          }
+
+                          Button {
+                              text: "Home"
+                              onClicked: {leftDrawer.close()
+                              controllerSound.clickButton()
+                              }
+                          }
+
+                          Label {
+                              text: "Change volume"
+                              font.pixelSize: 15
+                          }
+
+                          Slider {
+                              id: volumeSlider
+                              from: 0.0
+                              to: 1.0
+                              stepSize: 0.1
+                              value: 0.5
+                              onValueChanged: controllerSound.setBackgroundVolume(value)
+                          }
+
+                          Switch {
+                              id: soundSwitch
+                              text: "Sound"
+                              checked: true
+                              onCheckedChanged: {
+                                  if (soundSwitch.checked) {
+                                      controllerSound.backgroundSoundF()
+                                      soundSwitch.text = "Sound ON";
+                                  } else {
+                                      controllerSound.stopBackgroundSound();
+                                      soundSwitch.text = "Sound OFF";
+                                  }
+                              }
+                          }
+                        }
+
+          }
+      }
+
 }
 

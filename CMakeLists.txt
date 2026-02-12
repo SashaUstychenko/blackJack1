@@ -7,6 +7,9 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Quick)
 
+find_package(Qt6 REQUIRED COMPONENTS Multimedia)
+
+
 qt_standard_project_setup(REQUIRES 6.5)
 
 qt_add_executable(appblackJack
@@ -51,6 +54,7 @@ set_target_properties(appblackJack PROPERTIES
 
 target_link_libraries(appblackJack
     PRIVATE Qt6::Quick
+    PRIVATE Qt6::Multimedia
 )
 
 include(GNUInstallDirs)

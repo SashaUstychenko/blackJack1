@@ -65,8 +65,9 @@ void ControlerBlackJack::playerStand()
     while (dealer.shouldDraw() && deck.size() > 0) {
         dealer.getHand().addCard(deck.draw());
     }
-
+    dealerHiddenCard = false;
     emit dealerHandChanged();
+
     checkRoundEnd();
 }
 
@@ -93,6 +94,8 @@ void ControlerBlackJack::newRound()
 
     perfectPairsEnabled = true;
     player.placePerfectPairBet(0);
+
+    dealerHiddenCard = true;
 
     emit playerHandChanged();
     emit dealerHandChanged();
@@ -140,6 +143,24 @@ int ControlerBlackJack::playerScore() const
 int ControlerBlackJack::dealerScore() const
 {
     return dealer.getHand().score();
+}
+
+int ControlerBlackJack::dealerVisibleScore() const
+{
+    const auto& cards = dealer.getHand().getGards();
+    if (cards.empty())
+        return 0;
+
+    if (dealerHiddenCard && cards.size() > 1)
+    {
+        Hand tempHand;
+        tempHand.addCard(cards[0]);
+        return tempHand.score();
+    }
+    else
+    {
+        return dealerScore();
+    }
 }
 
 int ControlerBlackJack::playerMoney() const
@@ -251,6 +272,17 @@ bool ControlerBlackJack::canStartRound() const
     return betPlaced && !roundFinished;
 }
 
+bool ControlerBlackJack::isDealerHidden() const
+{
+    return dealerHiddenCard;
+}
+
+void ControlerBlackJack::revealDealerCard()
+{
+    dealerHiddenCard = false;
+    emit dealerHandChanged();
+}
+
 
 void ControlerBlackJack::checkPerfectPair()
 {
@@ -281,7 +313,6 @@ QString ControlerBlackJack::cardImagePath(const Card &card) const
      qDebug() << "cardImagePath called for card:" ;
     return QString("qrc:/image/%1_of_%2.png").arg(rankToString(card.getRank()))
                                             .arg(suitToString(card.getSuit()));
-
 }
 
 QString ControlerBlackJack::rankToString(Rank rank) const
