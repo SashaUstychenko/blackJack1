@@ -3,7 +3,7 @@
 
 
 Player::Player()
-    : money(1000),bet(0)
+    : money(1000)
 {
 
 }

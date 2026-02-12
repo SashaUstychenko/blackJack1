@@ -7,11 +7,16 @@ ControlerBlackJack::ControlerBlackJack(QObject *parent)
     : QObject{parent}
 {}
 
+ControlerBlackJack::RoundResult ControlerBlackJack::getRoundResult() const
+{
+    return roundResult;
+}
+
 void ControlerBlackJack::startGame()
 {
     qDebug() << "startGame called:" ;
-
-
+    roundResult = RoundResult::None;
+    emit roundResultChanged();
 
     qDebug() << "startGame called:b";
     player.clearHand();
@@ -23,24 +28,20 @@ void ControlerBlackJack::startGame()
     firstPlayerAction = true;
     roundFinished = false;
 
-
-
     player.getHand().addCard(deck.draw());
     dealer.getHand().addCard(deck.draw());
     player.getHand().addCard(deck.draw());
-
     dealer.getHand().addCard(deck.draw());
+    checkPerfectPair();
+
 
     emit playerHandChanged();
     emit dealerHandChanged();
-
-    qDebug() << "startGame called: end" ;
-
-
 }
 
 void ControlerBlackJack::playerHit()
 {
+    qDebug() << "player s" ;
     if (roundFinished)
         return;
     firstPlayerAction = false;
@@ -49,47 +50,55 @@ void ControlerBlackJack::playerHit()
 
     if (player.getHand().isBust())
         checkRoundEnd();
+    qDebug() << "player e" ;
+    emit playerHandChanged();
+
 }
 
 void ControlerBlackJack::playerStand()
 {
-    firstPlayerAction = false;
-    while(dealer.shouldDraw() && deck.size()>0)
-    dealer.getHand().addCard(deck.draw());
+    if (roundFinished)
+        return;
 
-    roundFinished = true;
+    firstPlayerAction = false;
+
+    while (dealer.shouldDraw() && deck.size() > 0) {
+        dealer.getHand().addCard(deck.draw());
+    }
+
+    emit dealerHandChanged();
+    checkRoundEnd();
 }
 
 void ControlerBlackJack::newRound()
 {
+    perfectPairResult = PerfectPairResult::None;
+    emit perfectPairResultChanged();
+    perfectPairsEnabled = true;
+    emit perfectPairChanged();
+
+    roundResult = RoundResult::None;
+    emit roundResultChanged();
+
     if (deck.size() < 10)
     {
         deck.reset();
         deck.shuffle();
     }
-
     player.clearHand();
     dealer.clearHand();
 
     roundFinished = false;
     firstPlayerAction = true;
 
-    player.getHand().addCard(deck.draw());
-    dealer.getHand().addCard(deck.draw());
+    perfectPairsEnabled = true;
+    player.placePerfectPairBet(0);
 
-    player.getHand().addCard(deck.draw());
-    dealer.getHand().addCard(deck.draw());
-    if (perfectPairsEnabled && player.getPerfectPairBet() > 0)
-    {
-        if (isPerfectPair())
-        {
-            int win = player.getPerfectPairBet() * perfectPairPayout;
-            player.updateMoney(player.getPerfectPairBet() + win);
-        }
-    }
-    checkRoundEnd();
+    emit playerHandChanged();
+    emit dealerHandChanged();
+    emit playerMoneyChanged();
+    emit playerBetChanged();
 }
-
 
 QString ControlerBlackJack::playerCardImage(int index) const
 {
@@ -148,6 +157,8 @@ void ControlerBlackJack::placeBet(int amount)
     qDebug() << "placeBet called:" << amount;
 
     player.placeBet(amount);
+    emit playerBetChanged();
+    emit playerMoneyChanged();
     startGame();
 }
 
@@ -157,13 +168,12 @@ bool ControlerBlackJack::canDoubleDown() const
            && firstPlayerAction
            && player.getMoney() >= player.getBet()
            && !roundFinished;
-
 }
 
 void ControlerBlackJack::doubleDown()
 {
-   if (!canDoubleDown())
-            return;
+    if (!canDoubleDown())
+        return;
 
     player.placeBet(player.getBet());
 
@@ -171,19 +181,26 @@ void ControlerBlackJack::doubleDown()
 
     firstPlayerAction = false;
 
-    while (dealer.shouldDraw())
+    emit playerHandChanged();
+    emit playerMoneyChanged();
+    emit playerBetChanged();
+    while (dealer.shouldDraw() && deck.size() > 0)
     {
         dealer.getHand().addCard(deck.draw());
     }
+
+    emit dealerHandChanged();
     checkRoundEnd();
 }
+
 
 bool ControlerBlackJack::canPlacePerfectPairBet() const
 {
     return perfectPairsEnabled
            && !roundFinished
            && player.getHand().cardCount() == 0
-           && player.getMoney() > 0;
+           && player.getMoney() > 0
+           && player.getPerfectPairBet() == 0;;
 }
 
 void ControlerBlackJack::placePerfectPairBet(int amount)
@@ -191,8 +208,29 @@ void ControlerBlackJack::placePerfectPairBet(int amount)
     if (!canPlacePerfectPairBet())
         return;
 
+    if (amount <= 0 || amount > player.getMoney())
+        return;
     player.placePerfectPairBet(amount);
+
+    perfectPairsEnabled = false;
+
+    emit playerMoneyChanged();
+    emit playerBetChanged();
+    emit perfectPairChanged();
 }
+
+ControlerBlackJack::PerfectPairResult
+ControlerBlackJack::getPerfectPairResult() const
+{
+    return perfectPairResult;
+}
+
+
+bool ControlerBlackJack::isPerfectPairWin() const
+{
+    return perfectPairResult == PerfectPairResult::Win;
+}
+
 
 bool ControlerBlackJack::canPlayerHit()
 {
@@ -212,6 +250,32 @@ bool ControlerBlackJack::canStartRound() const
 {
     return betPlaced && !roundFinished;
 }
+
+
+void ControlerBlackJack::checkPerfectPair()
+{
+    if (!perfectPairsEnabled)
+        return;
+    if (player.getPerfectPairBet() <= 0)
+        return;
+    if (player.getHand().cardCount() != 2)
+        return;
+    if (isPerfectPair())
+    {
+        perfectPairResult = PerfectPairResult::Win;
+
+        int win = player.getPerfectPairBet() * perfectPairPayout;
+        player.updateMoney(player.getPerfectPairBet() + win);
+    }
+    else
+    {
+        perfectPairResult = PerfectPairResult::Lose;
+    }
+
+    emit perfectPairResultChanged();
+    emit playerMoneyChanged();
+}
+
 QString ControlerBlackJack::cardImagePath(const Card &card) const
 {
      qDebug() << "cardImagePath called for card:" ;
@@ -251,48 +315,62 @@ QString ControlerBlackJack::suitToString(Suit suit) const
     }
     return "";
 }
-
 void ControlerBlackJack::checkRoundEnd()
 {
     int pScore = playerScore();
     int dScore = dealerScore();
 
-    if(pScore > 21 )
+    bool playerBlackjack = player.getHand().isBlackJack();
+    bool dealerBlackjack = dealer.getHand().isBlackJack();
+
+    if (pScore > 21)
     {
+        roundResult = RoundResult::PlayerBust;
         player.updateMoney(0);
     }
-    else if(dScore > 21)
+    else if (dScore > 21)
     {
-        player.updateMoney(player.getBet()*2);
+        roundResult = RoundResult::DealerBust;
+        player.updateMoney(player.getBet() * 2);
     }
-    else if(pScore>dScore)
+    else if (playerBlackjack && dealerBlackjack)
     {
-        player.updateMoney(player.getBet()*2);
+        roundResult = RoundResult::Push;
+        player.updateMoney(player.getBet());
     }
-    else if(player.getHand().isBlackJack())
+    else if (playerBlackjack)
     {
-        if (blackjackPays3_2)
-        {
-            int win = player.getBet() * 3 / 2;
-            player.updateMoney(player.getBet() + win);
-        }
-        else
-        {
-            player.updateMoney(player.getBet() * 2);
-        }
+        roundResult = RoundResult::BlackJack;
+        int win = blackjackPays3_2 ? player.getBet() * 3 / 2 : player.getBet();
+        player.updateMoney(player.getBet() + win);
     }
-    else if(dScore>pScore)
+    else if (dealerBlackjack)
     {
+        roundResult = RoundResult::DealerWin;
+        player.updateMoney(0);
+    }
+    else if (pScore > dScore)
+    {
+        roundResult = RoundResult::PlayerWin;
+        player.updateMoney(player.getBet() * 2);
+    }
+    else if (dScore > pScore)
+    {
+        roundResult = RoundResult::DealerWin;
         player.updateMoney(0);
     }
     else
     {
+        roundResult = RoundResult::Push;
         player.updateMoney(player.getBet());
     }
-    player.placeBet(0);
 
     roundFinished = true;
-    player.clearBets();
+    player.placeBet(0);
+
+    emit roundResultChanged();
+    emit playerMoneyChanged();
+    emit playerBetChanged();
 }
 
 bool ControlerBlackJack::isPerfectPair() const
@@ -304,6 +382,9 @@ bool ControlerBlackJack::isPerfectPair() const
 
     return cards[0].getRank() == cards[1].getRank();
 }
+
+
+
 
 
 

@@ -14,6 +14,8 @@ Item {
     Repeater {
         model: root.cardCount
 
+
+
         Image {
             width: 100
             height: 150

@@ -45,7 +45,7 @@ bool Hand::isBust() const
 
 bool Hand::isBlackJack() const
 {
-    return cardCount() == 2;
+    return cardCount() == 2 && score()==21;
 }
 
 int Hand::cardCount() const
